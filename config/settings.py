@@ -172,3 +172,31 @@ CORS_ALLOWED_ORIGINS = [
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 if FRONTEND_URL:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL.rstrip('/'))  # Remove trailing slash if any
+
+# backend/config/settings.py
+# Replace the entire database section with this:
+
+import dj_database_url
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=False,
+        )
+    }
+else:
+    # Development fallback
+    DATABASES = {
+        'default': {
+            'ENGINE'  : 'django.db.backends.postgresql',
+            'NAME'    : os.getenv('DB_NAME', 'techzone_db'),
+            'USER'    : os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST'    : os.getenv('DB_HOST', 'localhost'),
+            'PORT'    : os.getenv('DB_PORT', '5432'),
+        }
+    }
