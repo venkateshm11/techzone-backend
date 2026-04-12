@@ -1,0 +1,2 @@
+# In backend/ folder
+echo "web: gunicorn config.wsgi:application" > Procfile
