@@ -14,7 +14,21 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# ALLOWED_HOSTS for both development and production
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+]
+
+# Add Railway backend domain from environment variable
+RAILWAY_DOMAIN = os.getenv('RAILWAY_DOMAIN')
+if RAILWAY_DOMAIN:
+    ALLOWED_HOSTS.append(RAILWAY_DOMAIN)
+
+# Add any custom backend domain
+BACKEND_DOMAIN = os.getenv('BACKEND_DOMAIN')
+if BACKEND_DOMAIN:
+    ALLOWED_HOSTS.append(BACKEND_DOMAIN)
 
 # ─── Installed Apps ───────────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -74,16 +88,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ─── Database ─────────────────────────────────────────────────────────────────
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+import dj_database_url
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    # Production: Use DATABASE_URL from Railway
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=False,
+        )
     }
-}
+else:
+    # Development: Use individual environment variables
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'techzone_db'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
 
 # ─── Custom User Model ────────────────────────────────────────────────────────
 # This MUST be set before the first migration
@@ -112,11 +141,16 @@ SIMPLE_JWT = {
 SIMPLE_JWT_USER_ID_FIELD = 'email'
 
 # ─── CORS Settings ────────────────────────────────────────────────────────────
-# Allows React on localhost:5173 to call Django on localhost:8000
+# Allows frontend (React) to call this Django backend from different domains
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
 ]
+
+# Add production frontend URL from environment variable if it exists
+FRONTEND_URL = os.getenv('FRONTEND_URL')
+if FRONTEND_URL:
+    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL.rstrip('/'))  # Remove trailing slash if any
 
 # ─── Password Validation ──────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
@@ -156,47 +190,5 @@ if not DEBUG:
     SESSION_COOKIE_SECURE           = True
     CSRF_COOKIE_SECURE              = True
 
-# ── Static files (needed for production) ──────────────────────────────────────
 STATIC_URL  = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# ── CORS for production ────────────────────────────────────────────────────────
-# In production we read this from an environment variable
-# so we don't hardcode the Vercel URL in settings.py
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-]
-
-# Add production frontend URL from environment variable if it exists
-FRONTEND_URL = os.getenv('FRONTEND_URL')
-if FRONTEND_URL:
-    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL.rstrip('/'))  # Remove trailing slash if any
-
-# backend/config/settings.py
-# Replace the entire database section with this:
-
-import dj_database_url
-
-DATABASE_URL = os.getenv('DATABASE_URL')
-
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=False,
-        )
-    }
-else:
-    # Development fallback
-    DATABASES = {
-        'default': {
-            'ENGINE'  : 'django.db.backends.postgresql',
-            'NAME'    : os.getenv('DB_NAME', 'techzone_db'),
-            'USER'    : os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', ''),
-            'HOST'    : os.getenv('DB_HOST', 'localhost'),
-            'PORT'    : os.getenv('DB_PORT', '5432'),
-        }
-    }
