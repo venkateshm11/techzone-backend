@@ -37,8 +37,6 @@ INSTALLED_APPS = [
     'apps.products',
     'apps.cart',
     'apps.orders',
-    'whitenoise.storage.CompressedManifestStaticFilesStorage',
-
 ]
 
 # In INSTALLED_APPS, add whitenoise storage
