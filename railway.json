@@ -1,5 +1,3 @@
-// backend/railway.json
-
 {
   "build": {
     "builder": "NIXPACKS"
