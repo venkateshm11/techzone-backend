@@ -1,2 +1,2 @@
-# In backend/ folder
-echo "web: gunicorn config.wsgi:application" > Procfile
+# Run this inside the backend/ folder
+echo "web: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT" > Procfile

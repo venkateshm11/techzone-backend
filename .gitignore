@@ -4,7 +4,9 @@ venv/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 .env
 staticfiles/
 db.sqlite3
 *.log
+.DS_Store
