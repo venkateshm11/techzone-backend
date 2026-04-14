@@ -70,11 +70,11 @@ class BootstrapSuperuserView(APIView):
     POST /api/auth/bootstrap-superuser/
     
     Creates admin accounts via frontend.
-    Allows up to 5 admin accounts (safety limit).
-    Only works if less than 5 admins exist.
+    Allows up to 10 admin accounts (safety limit).
+    Only works if less than 10 admins exist.
     
     This is useful for initial setup after deployment.
-    Once 5 admins exist, this endpoint returns 403 Forbidden.
+    Once 10 admins exist, this endpoint returns 403 Forbidden.
     
     Payload:
     {
@@ -86,7 +86,7 @@ class BootstrapSuperuserView(APIView):
     """
     
     permission_classes = [AllowAny]
-    MAX_ADMINS = 5
+    MAX_ADMINS = 10
     
     def post(self, request):
         # Safety check: only allow if less than MAX_ADMINS exist
