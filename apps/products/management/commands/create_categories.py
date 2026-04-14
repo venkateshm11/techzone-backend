@@ -9,11 +9,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         categories_data = [
-            {'name': 'Smartphones', 'slug': 'smartphones', 'description': 'Latest mobile phones and devices'},
-            {'name': 'Laptops', 'slug': 'laptops', 'description': 'Computers and laptops'},
-            {'name': 'Tablets', 'slug': 'tablets', 'description': 'Tablet computers'},
-            {'name': 'Headphones', 'slug': 'headphones', 'description': 'Wireless and wired headphones'},
+            {'name': 'Mobiles', 'slug': 'mobiles', 'description': 'Latest smartphones and mobile phones'},
+            {'name': 'Laptops', 'slug': 'laptops', 'description': 'Computers and laptops for work and gaming'},
             {'name': 'Accessories', 'slug': 'accessories', 'description': 'Phone and tech accessories'},
+            {'name': 'Headphones', 'slug': 'headphones', 'description': 'Wireless and wired headphones and earbuds'},
+            {'name': 'Tablets', 'slug': 'tablets', 'description': 'Tablet computers and iPad devices'},
+            {'name': 'Monitors', 'slug': 'monitors', 'description': 'Display monitors and LED screens'},
+            {'name': 'Speakers', 'slug': 'speakers', 'description': 'Bluetooth and wired speakers'},
         ]
 
         for cat_data in categories_data:
