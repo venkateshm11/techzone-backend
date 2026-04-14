@@ -235,3 +235,74 @@ class AdminOrderUpdateView(APIView):
         order.status = new_status
         order.save()
         return Response(OrderSerializer(order).data)
+
+
+class AdminCategoryListView(APIView):
+    """
+    GET  /api/admin/categories/ — list all categories
+    POST /api/admin/categories/ — create new category
+    """
+
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        """Get all categories including inactive ones"""
+        categories = Category.objects.all().order_by('name')
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """Create a new category"""
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminCategoryDetailView(APIView):
+    """
+    GET    /api/admin/categories/{slug}/ — get one category
+    PUT    /api/admin/categories/{slug}/ — update category
+    DELETE /api/admin/categories/{slug}/ — delete category
+    """
+
+    permission_classes = [IsAdminUser]
+
+    def get_object(self, slug):
+        try:
+            return Category.objects.get(slug=slug)
+        except Category.DoesNotExist:
+            return None
+
+    def get(self, request, slug):
+        category = self.get_object(slug)
+        if not category:
+            return Response(
+                {'error': 'Category not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        return Response(CategorySerializer(category).data)
+
+    def put(self, request, slug):
+        category = self.get_object(slug)
+        if not category:
+            return Response(
+                {'error': 'Category not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = CategorySerializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, slug):
+        category = self.get_object(slug)
+        if not category:
+            return Response(
+                {'error': 'Category not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        category.delete()
+        return Response({'message': f'Category "{category.name}" deleted.'})
