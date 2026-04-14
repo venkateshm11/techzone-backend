@@ -12,19 +12,16 @@ def serve_react_app(request, path=''):
     Serve React app's index.html for all routes except API.
     This allows React Router to handle all frontend routing when page is refreshed.
     """
-    # Try to find the React index.html in the frontend dist build
-    react_index_path = Path(settings.BASE_DIR).parent / 'frontend' / 'dist' / 'index.html'
+    # React dist folder is committed to backend repo at backend/frontend/dist
+    react_index_path = Path(settings.BASE_DIR) / 'frontend' / 'dist' / 'index.html'
     
     if react_index_path.exists():
         with open(react_index_path, 'rb') as f:
             return FileResponse(f, content_type='text/html')
     
-    # If no React build exists (development), return a message
-    return FileResponse(
-        open(os.devnull, 'rb'),
-        status=503,
-        content_type='text/plain'
-    )
+    # If no React build exists, return 503
+    from django.http import HttpResponse
+    return HttpResponse('React app not built. Run: npm --prefix ../frontend build', status=503)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

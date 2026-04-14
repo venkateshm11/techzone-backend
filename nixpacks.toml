@@ -1,17 +1,12 @@
 # Nixpacks configuration for Railway
 # This tells Railway how to build and deploy the application
 
-providers = ["python", "node"]
+providers = ["python"]
 
 [phases.build]
-# Build steps in correct order:
-# 1. Install Python packages first (so Django is available)
-# 2. Build React frontend
-# 3. Run Django setup commands
+# Build steps - frontend dist is pre-built and committed to repo
 cmds = [
     "pip install -r requirements.txt",
-    "npm --prefix ../frontend install", 
-    "npm --prefix ../frontend run build",
     "python manage.py migrate --noinput",
     "python manage.py create_categories"
 ]
