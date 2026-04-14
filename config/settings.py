@@ -206,3 +206,8 @@ if not DEBUG:
 
 STATIC_URL  = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Include frontend dist folder so React assets are served
+STATICFILES_DIRS = [
+    os.path.join(os.path.dirname(BASE_DIR), 'frontend', 'dist'),
+]
