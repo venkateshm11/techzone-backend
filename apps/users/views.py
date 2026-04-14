@@ -101,13 +101,12 @@ class BootstrapSuperuserView(APIView):
         # Get data from request
         email = request.data.get('email', '').strip()
         password = request.data.get('password', '').strip()
-        first_name = request.data.get('first_name', '').strip()
-        last_name = request.data.get('last_name', '').strip()
+        name = request.data.get('name', '').strip()  # Full name field
         
         # Validate required fields
-        if not email or not password:
+        if not email or not password or not name:
             return Response(
-                {'error': 'Email and password are required.'},
+                {'error': 'Email, password, and name are required.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -126,12 +125,11 @@ class BootstrapSuperuserView(APIView):
             )
         
         try:
-            # Create superuser
+            # Create superuser with correct field name
             user = CustomUser.objects.create_superuser(
                 email=email,
                 password=password,
-                first_name=first_name,
-                last_name=last_name,
+                name=name,  # Use 'name' field instead of first_name/last_name
                 role='ADMIN'
             )
             
