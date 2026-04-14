@@ -1,12 +1,13 @@
 # Nixpacks configuration for Railway
 # This tells Railway how to build and deploy the application
+# Note: Database commands are skipped here because DB isn't available during build
+# They run in the startup phase instead (see railway.json)
 
 providers = ["python"]
 
 [phases.build]
-# Build steps - frontend dist is pre-built and committed to repo
+# Build steps - only install dependencies during build
+# Database interactions happen in startCommand (after DB is available)
 cmds = [
     "pip install -r requirements.txt",
-    "python manage.py migrate --noinput",
-    "python manage.py create_categories"
 ]
