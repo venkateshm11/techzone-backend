@@ -3,7 +3,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .views import RegisterView, ProfileView
+from .views import RegisterView, ProfileView, BootstrapSuperuserView
 from .serializers import CustomTokenObtainPairSerializer
 
 
@@ -13,8 +13,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 urlpatterns = [
-    path('token/',         CustomTokenObtainPairView.as_view(), name='token_obtain'),
-    path('token/refresh/', TokenRefreshView.as_view(),          name='token_refresh'),
-    path('register/',      RegisterView.as_view(),              name='register'),
-    path('profile/',       ProfileView.as_view(),               name='profile'),
+    path('token/',                  CustomTokenObtainPairView.as_view(),  name='token_obtain'),
+    path('token/refresh/',          TokenRefreshView.as_view(),           name='token_refresh'),
+    path('register/',               RegisterView.as_view(),               name='register'),
+    path('profile/',                ProfileView.as_view(),                name='profile'),
+    path('bootstrap-superuser/',    BootstrapSuperuserView.as_view(),     name='bootstrap_superuser'),
 ]
