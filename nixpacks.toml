@@ -1,0 +1,21 @@
+# Nixpacks configuration for Railway
+# This tells Railway how to build and deploy the application
+
+[build]
+# Install both Python and Node.js for building
+providers = ["python", "node"]
+
+[phases.build]
+# Build the frontend React app first, then prepare Django
+cmds = [
+    "npm --prefix ../frontend install",
+    "npm --prefix ../frontend run build",
+    "python -m pip install -r requirements.txt"
+]
+
+[phases.setup]
+# Run Django migrations and create categories
+cmds = [
+    "python manage.py migrate --noinput",
+    "python manage.py create_categories"
+]
