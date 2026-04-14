@@ -150,7 +150,21 @@ CORS_ALLOWED_ORIGINS = [
 # Add production frontend URL from environment variable if it exists
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 if FRONTEND_URL:
-    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL.rstrip('/'))  # Remove trailing slash if any
+    # Clean up URL (remove trailing slash if any)
+    frontend_url = FRONTEND_URL.rstrip('/')
+    CORS_ALLOWED_ORIGINS.append(frontend_url)
+    # Also add with https prefix if it's not already there (for Railway compatibility)
+    if not frontend_url.startswith('https://') and not frontend_url.startswith('http://'):
+        CORS_ALLOWED_ORIGINS.append(f'https://{frontend_url}')
+
+# Enable credentials for JWT authentication
+CORS_ALLOW_CREDENTIALS = True
+
+# Expose headers that frontend might need
+CORS_EXPOSE_HEADERS = [
+    'Content-Type',
+    'X-CSRFToken',
+]
 
 # ─── Password Validation ──────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
