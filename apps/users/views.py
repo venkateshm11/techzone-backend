@@ -69,11 +69,12 @@ class BootstrapSuperuserView(APIView):
     """
     POST /api/auth/bootstrap-superuser/
     
-    Creates the first admin/superuser via frontend.
-    Only works if NO admin user exists (safety check).
+    Creates admin accounts via frontend.
+    Allows up to 5 admin accounts (safety limit).
+    Only works if less than 5 admins exist.
     
     This is useful for initial setup after deployment.
-    Once an admin exists, this endpoint returns 403 Forbidden.
+    Once 5 admins exist, this endpoint returns 403 Forbidden.
     
     Payload:
     {
@@ -85,12 +86,15 @@ class BootstrapSuperuserView(APIView):
     """
     
     permission_classes = [AllowAny]
+    MAX_ADMINS = 5
     
     def post(self, request):
-        # Safety check: only allow if NO admins exist
-        if CustomUser.objects.filter(role='ADMIN').exists():
+        # Safety check: only allow if less than MAX_ADMINS exist
+        admin_count = CustomUser.objects.filter(role='ADMIN').count()
+        
+        if admin_count >= self.MAX_ADMINS:
             return Response(
-                {'error': 'An admin account already exists. Cannot create another.'},
+                {'error': f'Maximum {self.MAX_ADMINS} admin accounts allowed. Cannot create more.'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
@@ -139,6 +143,8 @@ class BootstrapSuperuserView(APIView):
                 'user': UserProfileSerializer(user).data,
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),
+                'admins_created': admin_count + 1,
+                'admins_remaining': self.MAX_ADMINS - (admin_count + 1),
             }, status=status.HTTP_201_CREATED)
             
         except Exception as e:
@@ -146,3 +152,24 @@ class BootstrapSuperuserView(APIView):
                 {'error': f'Error creating superuser: {str(e)}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class AdminCountView(APIView):
+    """
+    GET /api/auth/admin-count/
+    
+    Returns the number of admin accounts created.
+    Used to show in navbar whether "Register as Admin" button should appear.
+    """
+    
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        admin_count = CustomUser.objects.filter(role='ADMIN').count()
+        max_admins = BootstrapSuperuserView.MAX_ADMINS
+        
+        return Response({
+            'admin_count': admin_count,
+            'max_admins': max_admins,
+            'can_create_admin': admin_count < max_admins,
+        })
